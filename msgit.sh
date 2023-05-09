@@ -1,45 +1,47 @@
 #!/bin/bash
 
-# Variables de configuración
+# Configuración
 usuario="MaykelZ1"
 token="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"
 repositorio="msgit"
 archivo="mensajes.md"
 
-# Clonar el repositorio si aún no existe en la carpeta actual
-if [ ! -d "./$repositorio" ]; then
-  git clone "https://github.com/$usuario/$repositorio.git"
+# Clonar el archivo mensajes.md desde el repositorio
+if [ -d "$repositorio" ]; then
+    cd $repositorio
+    if git diff-index --quiet HEAD --; then
+        echo "No hay mensajes nuevos"
+    else
+        echo "Hay mensajes nuevos"
+    fi
+    git pull origin main
+else
+    git clone https://github.com/$usuario/$repositorio.git
+    cd $repositorio
 fi
 
-# Función para guardar mensaje en el archivo mensajes.md
-function guardar_mensaje {
-  echo "$1" >> "./$repositorio/$archivo"
-  echo "Mensaje guardado."
-}
+while true
+do
+    # Esperar a que el usuario ingrese un mensaje
+    read -p "Escribe tu mensaje y presiona Enter. Para terminar, escribe 'exit': " mensaje
 
-# Función para hacer commit y push al repositorio
-function push_repo {
-  cd "./$repositorio"
-  git add "$archivo"
-  git commit -m "Actualización automática de mensajes"
-  git push -u origin main
-  cd ..
-  echo "Mensaje guardado y subido al repositorio en GitHub."
-}
+    # Si se ingresa 'exit', salir del loop
+    if [ "$mensaje" == "exit" ]; then
+        echo "Saliendo..."
+        exit
+    fi
 
-# Loop para guardar mensajes indefinidamente
-while true; do
-  read -r mensaje
-  if [ "$mensaje" = "exit" ]; then
-    break
-  fi
-  guardar_mensaje "$mensaje"
-  hay_cambios=$(git -C "./$repositorio" status --porcelain)
-  if [ -n "$hay_cambios" ]; then
-    echo "Hay mensajes nuevos."
+    # Agregar el mensaje al archivo mensajes.md
+    echo "$mensaje" >> $archivo
+
+    # Esperar 3 segundos
     sleep 3
-    push_repo
-  else
-    echo "No hay mensajes nuevos."
-  fi
+
+    # Hacer commit y push del archivo mensajes.md
+    git add $archivo
+    git commit -m "Agregado mensaje"
+    git push -u origin main
+
+    # Actualizar el archivo mensajes.md
+    git pull origin main
 done
