@@ -1,33 +1,45 @@
 #!/bin/bash
 
-# Datos del usuario
+# Variables de configuración
 usuario="MaykelZ1"
 token="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"
 repositorio="msgit"
 archivo="mensajes.md"
 
-# Función para guardar el mensaje en el archivo mensajes.md
+# Clonar el repositorio si aún no existe en la carpeta actual
+if [ ! -d "./$repositorio" ]; then
+  git clone "https://github.com/$usuario/$repositorio.git"
+fi
+
+# Función para guardar mensaje en el archivo mensajes.md
 function guardar_mensaje {
-    echo "$1" >> $archivo
+  echo "$1" >> "./$repositorio/$archivo"
+  echo "Mensaje guardado."
 }
 
-# Clonar el archivo mensajes.md del repositorio
-git clone --quiet "https://github.com/$usuario/$repositorio.git" 2>&1 >/dev/null
+# Función para hacer commit y push al repositorio
+function push_repo {
+  cd "./$repositorio"
+  git add "$archivo"
+  git commit -m "Actualización automática de mensajes"
+  git push -u origin main
+  cd ..
+  echo "Mensaje guardado y subido al repositorio en GitHub."
+}
 
-# Loop infinito para leer mensajes desde la entrada estándar
+# Loop para guardar mensajes indefinidamente
 while true; do
-    # Leer mensaje desde entrada estándar
-    read -t 3 mensaje
-
-    # Si no se ha leído nada, continuar esperando
-    if [ -z "$mensaje" ]; then
-        continue
-    fi
-
-    # Si se ha leído algo, guardar el mensaje en el archivo mensajes.md
-    guardar_mensaje "$mensaje"
-
-    # Mensaje de confirmación
-    echo "Mensaje guardado."
-
+  read -r mensaje
+  if [ "$mensaje" = "exit" ]; then
+    break
+  fi
+  guardar_mensaje "$mensaje"
+  hay_cambios=$(git -C "./$repositorio" status --porcelain)
+  if [ -n "$hay_cambios" ]; then
+    echo "Hay mensajes nuevos."
+    sleep 3
+    push_repo
+  else
+    echo "No hay mensajes nuevos."
+  fi
 done
