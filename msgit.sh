@@ -5,22 +5,22 @@ usuario="MaykelZ1"
 token="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"
 repositorio="msgit"
 archivo="mensajes.md"
+temp="temp.md"
 
 # Clonar el archivo mensajes.md desde el repositorio
 echo "Clonando archivo mensajes.md desde el repositorio..."
-git clone -q https://github.com/$usuario/$repositorio.git
+git clone https://github.com/$usuario/$repositorio.git
 cd $repositorio
 
 while true
 do
-    # Clonar el archivo mensajes.md cada 5 segundos
-    sleep 5
-    git pull -q
-
-    # Limpiar la pantalla y mostrar los últimos 5 renglones del archivo mensajes.md
+    # Actualizar el archivo mensajes.md cada 5 segundos
+    tail -n 5 $archivo > $temp
     clear
     echo "Últimos 5 mensajes:"
-    tail -n 5 $archivo
+    cat $temp
+    rm $temp
+    sleep 5
 
     # Esperar a que el usuario ingrese un mensaje
     read -p "Escribe tu mensaje y presiona Enter. Para terminar, escribe 'exit': " mensaje
@@ -40,8 +40,8 @@ do
     # Hacer commit y push del archivo mensajes.md
     git add $archivo
     git commit -m "Agregado mensaje"
-    git push -q -u origin main
+    git push -u origin main > /dev/null
 
     # Actualizar el archivo mensajes.md
-    git pull -q
+    git pull origin main > /dev/null
 done
