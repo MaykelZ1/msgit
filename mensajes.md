@@ -11,3 +11,4 @@ Omla
 nueve cero
 chkete esto pa
 listooooo
+turip
