@@ -7,18 +7,8 @@ repositorio="msgit"
 archivo="mensajes.md"
 
 # Clonar el archivo mensajes.md desde el repositorio
-if [ -d "$repositorio" ]; then
-    cd $repositorio
-    if git diff-index --quiet HEAD --; then
-        echo "No hay mensajes nuevos"
-    else
-        echo "Hay mensajes nuevos"
-    fi
-    git pull origin main
-else
-    git clone https://github.com/$usuario/$repositorio.git
-    cd $repositorio
-fi
+git clone https://github.com/$usuario/$repositorio.git > /dev/null 2>&1
+cd $repositorio
 
 while true
 do
@@ -39,9 +29,14 @@ do
 
     # Hacer commit y push del archivo mensajes.md
     git add $archivo
-    git commit -m "Agregado mensaje"
-    git push -u origin main
+    git commit -m "Agregado mensaje" > /dev/null 2>&1
+    git push -u origin main > /dev/null 2>&1
 
     # Actualizar el archivo mensajes.md
-    git pull origin main
+    git pull origin main > /dev/null 2>&1
+    if [ $(git diff origin/main $archivo | wc -l) -eq 0 ]; then
+        echo "No hay mensajes nuevos"
+    else
+        echo "Hay mensajes nuevos"
+    fi
 done
