@@ -11,3 +11,4 @@ Wenas
 XDDDDD
 Yes
 No quiero
+netbook
