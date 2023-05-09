@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Función para limpiar la pantalla
 function limpiar_pantalla {
     sleep 1
     clear
@@ -11,30 +12,40 @@ token="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"
 repositorio="msgit"
 archivo="mensajes.md"
 
-# Verificar si el repositorio ya está clonado
-if [ ! -d "$repositorio" ]; then
+while true
+do
+    # Comprobar si se ha presionado la tecla F1
+    if [[ $- == *i* ]] && [[ -t 0 ]]; then
+        read -s -n1 key
+        if [ "$key" == $'\x1b' ]; then
+            read -s -n2 key
+            if [ "$key" == "[[A" ]; then
+                echo -e "\nReiniciando el script..."
+                sleep 1
+                exec $0
+            fi
+        fi
+    fi
+
+    # Clonar o actualizar el archivo mensajes.md desde el repositorio
+    if [ -d "$repositorio" ]; then
+        echo -e "\nEliminando el repositorio local..." >&2
+        rm -rf $repositorio >&2
+    fi
     echo -e "\nClonando archivo mensajes.md desde el repositorio..." >&2
     git clone https://github.com/$usuario/$repositorio.git >&2
     limpiar_pantalla
-fi
+    cd $repositorio
 
-# Verificar que el directorio msgit existe
-if [ ! -d "$repositorio" ]; then
-    echo "El directorio $repositorio no existe. Saliendo..."
-    exit
-fi
-
-cd $repositorio
-
-while true
-do
     # Mostrar los últimos 5 mensajes
     echo -e "\n\e[36mMostrando los últimos 5 mensajes:\e[0m" >&2
     tail -n5 mensajes.md
+    
 
     # Comprobar mensajes nuevos
     echo -e "\n\e[36mComprobando mensajes nuevos...\e[0m" >&2
     git pull origin main > /dev/null 2>&1
+    
 
     # Esperar a que el usuario ingrese un mensaje
     read -p $'\e[38;5;202m'"Escribe algo: "$'\e[0m' mensaje
