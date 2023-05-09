@@ -1,47 +1,33 @@
 #!/bin/bash
 
+# Datos del usuario
 usuario="MaykelZ1"
 token="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"
 repositorio="msgit"
 archivo="mensajes.md"
 
-# Clonar el repositorio si no existe
-if [ ! -d "msgit" ]; then
-  git clone "https://github.com/$usuario/$repositorio.git" msgit
-fi
+# Función para guardar el mensaje en el archivo mensajes.md
+function guardar_mensaje {
+    echo "$1" >> $archivo
+}
 
-while true
-do
-  echo "Escribe tu mensaje y presiona Enter. Para terminar, escribe 'exit': "
-  read mensaje
+# Clonar el archivo mensajes.md del repositorio
+git clone --quiet "https://github.com/$usuario/$repositorio.git" 2>&1 >/dev/null
 
-  if [ "$mensaje" == "exit" ]; then
-    break
-  else
-    echo "$mensaje" >> msgit/$archivo
-    echo "Mensaje guardado en $archivo."
-  fi
+# Loop infinito para leer mensajes desde la entrada estándar
+while true; do
+    # Leer mensaje desde entrada estándar
+    read -t 3 mensaje
 
-  # Esperar 3 segundos antes de hacer el commit y push
-  sleep 3
+    # Si no se ha leído nada, continuar esperando
+    if [ -z "$mensaje" ]; then
+        continue
+    fi
 
-  # Hacer commit y push del archivo
-  cd msgit
-  git add $archivo
-  git commit -m "Actualización de mensajes"
-  git push origin main
-  cd ..
+    # Si se ha leído algo, guardar el mensaje en el archivo mensajes.md
+    guardar_mensaje "$mensaje"
 
-  echo "Mensaje subido al repositorio en GitHub."
+    # Mensaje de confirmación
+    echo "Mensaje guardado."
 
-  # Descargar la versión más reciente del archivo mensajes.md
-  curl -s "https://raw.githubusercontent.com/$usuario/$repositorio/main/$archivo" | jq -sR '.' > $archivo
-
-  # Mostrar el contenido del archivo mensajes.md
-  if [ -s "$archivo" ]; then
-    echo "Mensajes existentes:"
-    cat $archivo
-  else
-    echo "No hay mensajes nuevos."
-  fi
 done
