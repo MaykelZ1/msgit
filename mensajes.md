@@ -12,3 +12,4 @@ XDDDDD
 Yes
 No quiero
 netbook
+computadora
