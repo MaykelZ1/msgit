@@ -50,6 +50,8 @@ do
     # Esperar a que el usuario ingrese un mensaje
     read -p $'\e[38;5;202m'"Escribe algo: "$'\e[0m' mensaje
 
+    sleep 4 && echo "" | read
+
     # Si se presiona Enter, ocultar los mensajes de clonación
     if [ -z "$mensaje" ]; then
         limpiar_pantalla
