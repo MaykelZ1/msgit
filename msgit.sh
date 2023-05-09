@@ -1,33 +1,25 @@
 #!/bin/bash
 
-# Nombre de usuario y nombre del repositorio en GitHub
 usuario="MaykelZ1"
+token="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"
 repositorio="msgit"
-
-# Ruta del archivo que se creará con los mensajes
 archivo="mensajes.md"
 
-# Función para subir los mensajes al repositorio en GitHub
-upload_messages_to_github() {
-  mensaje_commit="Agregando mensajes"
-  contenido=$(base64 $archivo)
-  json="{\"message\":\"$mensaje_commit\",\"content\":\"$contenido\"}"
-  respuesta=$(curl -s -H "Authorization: token $token" -H "Content-Type: application/json" -X PUT -d "$json" "https://api.github.com/repos/$usuario/$repositorio/contents/$archivo?ref=main")
-  echo "Mensajes subidos al repositorio en GitHub"
-}
+echo "Mensajes existentes:"
+curl -H "Authorization: token $token" -s "https://api.github.com/repos/$usuario/$repositorio/contents/$archivo" | grep -oP '(?<="download_url": ")[^"]*' | xargs curl -s | base64 --decode
 
-# Token de acceso personal de GitHub
-token="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"
-
-echo "Escribe tu mensaje y presiona Enter. Para terminar, escribe 'exit'"
 while true; do
-  read mensaje
-  if [ "$mensaje" == "exit" ]; then
-    break
-  else
-    echo "$mensaje" >> $archivo
-    upload_messages_to_github
-  fi
-done
+    read -p "Escribe tu mensaje y presiona Enter. Para terminar, escribe \"exit\": " mensaje
 
-echo "Fin del programa"
+    if [ "$mensaje" == "exit" ]; then
+        echo "Adios."
+        break
+    fi
+
+    echo "$mensaje" >> $archivo
+    git add $archivo
+    git commit -m "{\"message\":\"Agregando mensaje: $mensaje\",\"content\":\"$(base64 $archivo)\",\"branch\":\"main\"}" >/dev/null 2>&1
+    git push --set-upstream origin main >/dev/null 2>&1
+
+    echo "Mensaje guardado y subido al repositorio en GitHub."
+done
