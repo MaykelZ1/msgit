@@ -19,3 +19,4 @@ ichael
 no me anda el wifi
 JAJSAJasj
 La vida quiere que uno reniegue nomas
+jajjaaja
