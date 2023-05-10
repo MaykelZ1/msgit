@@ -22,3 +22,4 @@ La vida quiere que uno reniegue nomas
 jajjaaja
 baburris la vida del programador
 *aburris
+y estresante
